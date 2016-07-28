@@ -5,6 +5,7 @@
 
 <% owner_klasses = klass.reflect_on_all_associations(:belongs_to).map{|asc| asc.name.to_s} %>
 <% supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_many}.compact %>
+<% supa_klasses = klass.reflections.collect{|a, b| {class_name: b.class_name, name: b.name.to_s, options: b.options} if b.macro==:has_many}.compact %>
 <% direct_supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_one}.compact %>
 # TODO: maybe add one for :has_and_belongs_to_many?
 # TODO: All tests for has through are failing miserably
@@ -54,15 +55,15 @@ RSpec.describe <%= klass %>, type: :model do
 	  	<% end %>
 
 	  	<% supa_klasses.each do |child| %>
-	  		it "should allow multiple <%= child.pluralize %>" do
+	  		it "should allow multiple <%= child[:name] %>" do
 	  			<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
 
 	  			3.times.each do |n|
-	  				<%= child.singularize %> = FactoryGirl.create(:<%= child.singularize %>)
-	  				<%= file_name %>.<%= child.pluralize %> << <%= child.singularize %>
-	  				<%= "#{file_name}_#{child.pluralize}" %> = <%= file_name %>.<%= child.pluralize %>
-	  				expect(<%= "#{file_name}_#{child.pluralize}" %>.count).to eq n.next
-	  				expect(<%= "#{file_name}_#{child.pluralize}" %>).to include <%= child.singularize %>
+	  				<%= child[:name].singularize %> = FactoryGirl.create(:<%= child[:class_name].underscore %>)
+	  				<%= file_name %>.<%= child[:name] %> << <%= child[:name].singularize %>
+	  				<%= "#{file_name}_#{child[:name]}" %> = <%= file_name %>.<%= child[:name] %>
+	  				expect(<%= "#{file_name}_#{child[:name]}" %>.count).to eq n.next
+	  				expect(<%= "#{file_name}_#{child[:name]}" %>).to include <%= child[:name].singularize %>
 	  			end
 	  		end
 
@@ -73,6 +74,7 @@ RSpec.describe <%= klass %>, type: :model do
 	<% unless direct_supa_klasses.empty? and supa_klasses.empty? %>
 		describe "Graceful Destroyal" do
 			<% direct_supa_klasses.each do |d_s_k| %>
+				<% next if d_s_k[:options].include? :through %>
 				it "should destroy the associated <%= d_s_k %> when deleted" do
 					<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
 					<%= d_s_k %> = FactoryGirl.create(:<%= d_s_k %>)
@@ -83,17 +85,18 @@ RSpec.describe <%= klass %>, type: :model do
 			<% end %>
 
 			<% supa_klasses.each do |child| %>
-				it "should destroy the associated <%= child.singularize %> when deleted" do
+				<% next if child[:options].include? :through %>
+				it "should destroy the associated <%= child[:name] %> when deleted" do
 					<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
-					<%= file_name %>.<%= child.pluralize %>.create(FactoryGirl.attributes_for(:<%= child.singularize %>))
+					<%= file_name %>.<%= child[:name] %>.create(FactoryGirl.attributes_for(:<%= child[:class_name].underscore %>))
 
-					expect{ <%= file_name %>.destroy }.to change(<%= child.camelize.singularize.constantize %>, :count).by -1
+					expect{ <%= file_name %>.destroy }.to change(<%= child[:class_name].constantize %>, :count).by -1
 				end
 			<% end %>
 		end
 	<% end %>	
 
   describe "Behavior" do
-  	pending "add some examples to #{__FILE__} for behaviours or delete the 'Behaviour' test here."
+  	pending "add some examples to #{__FILE__} for behaviours or delete the 'Behaviour' test there."
   end
 end
