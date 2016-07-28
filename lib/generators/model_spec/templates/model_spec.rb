@@ -1,15 +1,14 @@
 <% klass = class_name.camelize.singularize.constantize %>
 
 <% attributes = klass.new.attributes.except('id', "reset_password_token", "reset_password_sent_at", "remember_created_at", "sign_in_count", "current_sign_in_at", "last_sign_in_at", "current_sign_in_ip", "last_sign_in_ip", "created_at", "updated_at").keys %>
-# maybe use validators for thise? (validators = (eval class_name).validators)
+# maybe use validators for this? (validators = (eval class_name).validators)
 
 <% owner_klasses = klass.reflect_on_all_associations(:belongs_to).map{|asc| asc.name.to_s} %>
-<% supa_klasses = klass.reflect_on_all_associations(:has_many).map{|asc| asc.name.to_s} %>
-<% direct_supa_klasses = klass.reflect_on_all_associations(:has_one).map{|asc| asc.name.to_s} %>
+<% supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_many}.compact %>
+<% direct_supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_one}.compact %>
 # TODO: maybe add one for :has_and_belongs_to_many?
 # TODO: ASSOCIATIONS, deletions, etc...
 # TODO: All tests for has through are failing miserably
-# TODO: yet to handle (breaks on) generation for a has through with source kinda association... (e.g: has_many :applicants, through: :job_applications, source: :user)
 
 <% if attributes.include? 'encrypted_password' %>
  <% attributes[attributes.index 'encrypted_password'] = 'password' %>
@@ -33,7 +32,7 @@ RSpec.describe <%= class_name %>, type: :model do
   	<% end %>
 
   	<% if attributes.include? "email" %>
-  		it "should ensure the uniqueness of emmmmmmmmail" do
+  		it "should ensure the uniqueness of email" do
       	<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
       	new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, email: <%= file_name %>.email)
       	expect(new_<%= file_name %>).not_to be_valid
