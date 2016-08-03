@@ -4,12 +4,13 @@
 <% validators = validations.keys %>
 
 <% owner_klasses = klass.reflect_on_all_associations(:belongs_to).map{|asc| asc.name.to_s} %>
-<% supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_many}.compact %>
 <% supa_klasses = klass.reflections.collect{|a, b| {class_name: b.class_name, name: b.name.to_s, options: b.options} if b.macro==:has_many}.compact %>
-<% direct_supa_klasses = klass.reflections.collect{|a, b| b.class_name.underscore if b.macro==:has_one}.compact %>
+<% direct_supa_klasses = klass.reflections.collect{|a, b| {class_name: b.class_name, name: b.name.to_s, options: b.options} if b.macro==:has_one}.compact %>
+
 # TODO: maybe add one for :has_and_belongs_to_many?
 # TODO: All tests for has through are failing miserably
 # TODO: Validations with scope ( scoped validations ) are failing
+# TODO: Implement insertions for existing files
 
 require 'rails_helper'
 
@@ -75,12 +76,12 @@ RSpec.describe <%= klass %>, type: :model do
 		describe "Graceful Destroyal" do
 			<% direct_supa_klasses.each do |d_s_k| %>
 				<% next if d_s_k[:options].include? :through %>
-				it "should destroy the associated <%= d_s_k %> when deleted" do
+				it "should destroy the associated <%= d_s_k[:name] %> when deleted" do
 					<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
-					<%= d_s_k %> = FactoryGirl.create(:<%= d_s_k %>)
-					<%= file_name %>.<%= d_s_k.pluralize %> << <%= d_s_k %>
+					<%= d_s_k[:name] %> = FactoryGirl.create(:<%= d_s_k[:name] %>)
+					<%= file_name %>.<%= d_s_k[:name].pluralize %> << <%= d_s_k[:name] %>
 
-					expect{ <%= file_name %>.destroy }.to change(<%= d_s_k.camelize.singularize.constantize %>, :count).by -1
+					expect{ <%= file_name %>.destroy }.to change(<%= d_s_k[:class_name].constantize %>, :count).by -1
 				end
 			<% end %>
 
