@@ -1,4 +1,4 @@
-# SpecWriter
+# SpecWriter [![Gem Version](https://badge.fury.io/rb/spec_writer.svg)](https://badge.fury.io/rb/spec_writer)
 
 We know you don't do TDD :stuck_out_tongue: but what about DDT? :smile: 
 
