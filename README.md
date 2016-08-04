@@ -38,7 +38,15 @@ Others that might be useful, but not entirely compulsory includes:
 
 In a rails application, set up the rspec testing, with factories in the `spec/factories` directory...
 
-Next, to have SpecWriter compile model test for a model, simply run: `$ rails generate model_spec MODEL`. (generating for User model, for example, will be: `$ rails generate model_spec User`) this will generate a spec file in the `spec/models/<model>_spec.rb` and populate with some good basic tests.
+Next, to have SpecWriter compile model test for a model, simply run: 
+
+    $ rails generate model_spec MODEL
+generating for User model, for example, will be:
+
+    $ rails generate model_spec User
+This will generate a spec file in the `spec/models/<model>_spec.rb` and populate with some good basic tests.
+
+running `rspec` here might show some failing tests due to absence of required factory, either create those factories, or fix test as appropriate.
 
 #### Tests covered are:
  - Validation tests

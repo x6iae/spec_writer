@@ -8,7 +8,7 @@
 <% direct_supa_klasses = klass.reflections.collect{|a, b| {class_name: b.class_name, name: b.name.to_s, options: b.options} if b.macro==:has_one}.compact %>
 
 # TODO: maybe add one for :has_and_belongs_to_many?
-# TODO: Implement insertions for existing files
+# TODO: Implement insertions for existing files... why??
 
 require 'rails_helper'
 
