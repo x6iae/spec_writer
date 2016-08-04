@@ -8,8 +8,6 @@
 <% direct_supa_klasses = klass.reflections.collect{|a, b| {class_name: b.class_name, name: b.name.to_s, options: b.options} if b.macro==:has_one}.compact %>
 
 # TODO: maybe add one for :has_and_belongs_to_many?
-# TODO: All tests for has through are failing miserably
-# TODO: Validations with scope ( scoped validations ) are failing
 # TODO: Implement insertions for existing files
 
 require 'rails_helper'
@@ -33,14 +31,21 @@ RSpec.describe <%= klass %>, type: :model do
   	<% end %>
 
   	<% if validators.include? :uniqueness %>
-  		<% validations[:uniqueness][0].attributes.each do |attr| %>
-	  		it "should ensure the uniqueness of <%= attr %>" do
-	      	<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
-	      	new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: <%= file_name %>.<%= attr %>)
-	      	expect(new_<%= file_name %>).not_to be_valid
-	      	expect(new_<%= file_name %>.errors[:<%= attr %>]).to be_present
-	    	end
-	    <% end %>
+  		<% validations[:uniqueness].each do |v| %>
+  			<% scope = v.options[:scope] %>
+	  		<% v.attributes.each do |attr| %>
+		  		it "should ensure the uniqueness of <%= attr %>" do
+		      	<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
+						<% if scope %>
+							new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: <%= file_name %>.<%= attr %>, <%= scope %>: <%= file_name %>.<%= scope %>)
+						<% else %>
+		      		new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: <%= file_name %>.<%= attr %>)
+		      	<% end %>
+		      	expect(new_<%= file_name %>).not_to be_valid
+		      	expect(new_<%= file_name %>.errors[:<%= attr %>]).to be_present
+		    	end
+		    <% end %>
+		  <% end %>
   	<% end %>
   end
 
