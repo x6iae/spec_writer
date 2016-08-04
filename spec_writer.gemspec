@@ -10,14 +10,14 @@ Gem::Specification.new do |spec|
   spec.email         = ["adefilaedward@gmail.com"]
 
   spec.summary       = %q{Automate Rspec test writing for common MVC specs}
-	spec.description   = %q{Rspec model tests only comes with one line: 'pending "add some examples to (or delete) #{__FILE__}"'. T    his gem seeks to populate the model spec with basic tests like validations, relationships, etc...}
-  spec.homepage      = "TODO: Put your gem's website or public repo URL here."
+	spec.description   = %q{Rspec model tests only comes with one line: 'pending "add some examples to (or delete) #{__FILE__}"'. This gem seeks to populate the model spec with basic tests like validations, relationships, etc..., and then some.}
+  spec.homepage      = "https://github.com/SundayAdefila/spec_writer"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata['allowed_push_host'] = "TODO: Set to 'http://mygemserver.com'"
+    spec.metadata['allowed_push_host'] = "https://rubygems.org"
   else
     raise "RubyGems 2.0 or newer is required to protect against public gem pushes."
   end
