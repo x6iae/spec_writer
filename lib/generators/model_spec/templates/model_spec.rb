@@ -22,11 +22,7 @@ RSpec.describe <%= klass %>, type: :model do
 
   	<% if validators.include? :presence %>
   		<% validations[:presence][0].attributes.each do |attr| %>
-  			it "should ensure the presence of <%= attr %>" do
-  				<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: nil)
-  				expect(<%= file_name %>).not_to be_valid
-  				expect(<%= file_name %>.errors[:<%= attr %>]).to be_present
-  			end
+  			it { should validate_presence_of(:<%= attr %>) }
   		<% end %>
   	<% end %>
 
@@ -34,16 +30,11 @@ RSpec.describe <%= klass %>, type: :model do
   		<% validations[:uniqueness].each do |v| %>
   			<% scope = v.options[:scope] %>
 	  		<% v.attributes.each do |attr| %>
-		  		it "should ensure the uniqueness of <%= attr %>" do
-		      	<%= file_name %> = FactoryGirl.create(:<%= file_name %>)
-						<% if scope %>
-							new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: <%= file_name %>.<%= attr %>, <%= scope %>: <%= file_name %>.<%= scope %>)
-						<% else %>
-		      		new_<%= file_name %> = FactoryGirl.build(:<%= file_name %>, <%= attr %>: <%= file_name %>.<%= attr %>)
-		      	<% end %>
-		      	expect(new_<%= file_name %>).not_to be_valid
-		      	expect(new_<%= file_name %>.errors[:<%= attr %>]).to be_present
-		    	end
+		    	<% if scope %>
+						it { should validate_uniqueness_of(:<%= attr %>).scoped_to(:<%= scope %>) }
+					<% else %>
+	      		it { should validate_uniqueness_of(:<%= attr %>) }
+	      	<% end %>
 		    <% end %>
 		  <% end %>
   	<% end %>
